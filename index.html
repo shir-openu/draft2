@@ -30,7 +30,9 @@
   @media (max-width:1024px){ .grid3{grid-template-columns:1fr} }
   .card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:14px;transition:box-shadow 0.3s ease}
   .card.flash{animation:cardFlash 1s ease-out}
+  .card.pulse{animation:cardPulse 2s ease-in-out 4}
   @keyframes cardFlash{0%{box-shadow:0 0 20px var(--purple)} 100%{box-shadow:0 0 0px var(--purple)}}
+  @keyframes cardPulse{0%,100%{box-shadow:0 0 0px var(--purple)} 50%{box-shadow:0 0 25px var(--purple)}}
   .card h3{margin:0 0 8px 0;font-size:16px;text-align:center;color:#e2e8f0;font-weight:400}
 
   .stage-wrap{width:100%;max-width:var(--stage-w);margin:8px auto 0;}
@@ -49,7 +51,7 @@
   .magenta{stroke:var(--magenta);stroke-width:2.6;fill:none}
   .err{background:#37240a;border:1px solid #f59e0b;color:#fde68a;padding:8px 10px;border-radius:8px;display:none}
 
-  .mathbox{font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif !important;color:#e5e7eb;font-style:normal}
+  .mathbox{font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif !important;color:#e5e7eb;font-style:normal;text-align:left;direction:ltr}
   .mathbox *{font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif !important}
   .mathbox .blk{margin:10px 0 2px}.mathbox .big{font-size:19px}.mathbox .eq{font-size:19px;line-height:1.5}
   .mathbox i,.mathbox sup,.mathbox sub{font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif !important}
@@ -69,7 +71,7 @@
 <body>
 <header>
   <div class="wrap title">
-    <h1>המחשה סכמטית: L(u+v) = L(u) + L(v)</h1>
+    <h1>העתקה לינארית - המחשה - שמירה על פעולת החיבור: L(u+v) = L(u) + L(v)</h1>
     <div class="controls">
       <button id="prevBtn">הקודם</button>
       <button id="playBtn">הפעל</button>
@@ -299,6 +301,14 @@ function render(step){
   });
   lastEls=s.els||[];
   computePanel();
+  
+  // הבהוב של ריבוע החישובים בשלב 8
+  if(step===8){
+    calcCard.classList.remove('pulse');
+    setTimeout(()=>calcCard.classList.add('pulse'), 50);
+  } else {
+    calcCard.classList.remove('pulse');
+  }
 }
 
 /* שליטה */
