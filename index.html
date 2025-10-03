@@ -28,7 +28,9 @@
   main{padding:14px 0;}
   .grid3{display:grid;grid-template-columns:280px minmax(500px,1fr) 320px; gap:14px;}
   @media (max-width:1024px){ .grid3{grid-template-columns:1fr} }
-  .card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:14px}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:14px;transition:box-shadow 0.3s ease}
+  .card.flash{animation:cardFlash 1s ease-out}
+  @keyframes cardFlash{0%{box-shadow:0 0 20px var(--purple)} 100%{box-shadow:0 0 0px var(--purple)}}
   .card h3{margin:0 0 8px 0;font-size:16px;text-align:center;color:#e2e8f0;font-weight:400}
 
   .stage-wrap{width:100%;max-width:var(--stage-w);margin:8px auto 0;}
@@ -91,7 +93,7 @@
     </aside>
 
     <section class="card">
-      <h3>מרחבים מופשטים U ו-W (אנימציה)</h3>
+      <h3>אנימציה</h3>
       <div class="controls" style="justify-content:center;gap:12px;margin:8px 0">
         <div><label class="note">בחרו u₁:</label>
           <select id="func1Select">
@@ -244,7 +246,14 @@ function render(step){
     <ellipse cx="400" cy="150" rx="330" ry="90" class="space-boundary"/>
     <ellipse cx="400" cy="460" rx="330" ry="90" class="space-boundary"/>
     <text x="80" y="150" class="math-text">W</text>
-    <text x="80" y="460" class="math-text">U</text>` : '';
+    <text x="80" y="460" class="math-text">U</text>
+    <defs>
+      <marker id="mWhite" viewBox="0 0 10 10" refX="9.5" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L10,5 L0,10 Q3.5,5 0,0Z" fill="#e2e8f0"/>
+      </marker>
+    </defs>
+    <line x1="140" y1="400" x2="140" y2="210" stroke="#e2e8f0" stroke-width="2.5" marker-end="url(#mWhite)"/>
+    <text x="160" y="305" fill="#e2e8f0" font-size="28" font-weight="400" font-family="system-ui,sans-serif" font-style="italic">L</text>` : '';
 
   gArrows.innerHTML=''; gPoints.innerHTML=''; gLabels.innerHTML='';
   (s.els||[]).forEach(el=>{
@@ -293,10 +302,14 @@ function render(step){
 }
 
 /* שליטה */
+const calcCard = document.querySelector('.card:last-child');
 function setRange(){
   const mismatch=(f1Sel.value==='general') !== (f2Sel.value==='general');
   err.style.display=mismatch?'block':'none'; slider.disabled=mismatch;
   current=1; render(current); updateUI();
+  // הבהוב של ריבוע החישובים
+  calcCard.classList.remove('flash');
+  setTimeout(()=>calcCard.classList.add('flash'), 10);
 }
 function updateUI(){
   slider.value=current;
