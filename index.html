@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>אופרטור דיפרנציאלי לינארי — לינאריות + חישובים (מצב כהה)</title>
+<style>
+  :root{
+    --bg:#0b1220; --ink:#e5e7eb; --muted:#94a3b8;
+    --panel:#0f172a; --panel-2:#111827; --border:#1f2937; --border-soft:#12213a;
+    --stage-w: 1200px;
+    --teal:#11a8a0; --magenta:#d43d8c; --purple:#a78bfa; --green:#22c55e;
+    --space:#94a3b8;
+  }
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,"Noto Sans";}
+  header{border-bottom:1px solid var(--border); background:linear-gradient(180deg,#0b1220 0%,#0c1426 100%)}
+  .wrap{max-width:var(--stage-w); margin:0 auto; padding:10px 14px;}
+  .title{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+  .title h1{font-size:18px;margin:0}
+  .controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .controls button,.controls select,.controls input{
+    font:inherit;padding:6px 10px;border:1px solid var(--border);
+    border-radius:8px;background:#0b1424;color:var(--ink);cursor:pointer;
+    box-shadow:0 0 0 1px var(--border-soft) inset}
+  .controls button:hover{background:#0e1a2c}
+  .note{color:var(--muted); font-size:13px}
+  main{padding:14px 0;}
+  .grid3{display:grid;grid-template-columns:280px minmax(500px,1fr) 320px; gap:14px;}
+  @media (max-width:1024px){ .grid3{grid-template-columns:1fr} }
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:14px}
+  .card h3{margin:0 0 8px 0;font-size:16px;text-align:center;color:#e2e8f0}
+
+  .stage-wrap{width:100%;max-width:var(--stage-w);margin:8px auto 0;}
+  .stage{width:100%;height:auto;aspect-ratio:4/3;display:block;
+         background:#0b1220;border:1px solid var(--border);border-radius:10px}
+
+  .space-boundary{fill:none;stroke:var(--space);stroke-width:2;stroke-dasharray:8 6;opacity:.95}
+  .node{fill:#e2e8f0}
+  .math-text{fill:#e2e8f0;font:500 17px/1.2 system-ui,sans-serif;text-anchor:middle;dominant-baseline:central}
+  .label-purple{fill:var(--purple);font-weight:600;paint-order:stroke fill;stroke:#0b1220;stroke-width:4px;stroke-linejoin:round}
+  .eq-green{fill:var(--green);font-weight:700}
+  .teal{stroke:var(--teal);stroke-width:2.6;fill:none}
+  .magenta{stroke:var(--magenta);stroke-width:2.6;fill:none}
+  .err{background:#37240a;border:1px solid #f59e0b;color:#fde68a;padding:8px 10px;border-radius:8px;display:none}
+
+  .mathbox{font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;color:#e5e7eb;font-style:normal}
+  .mathbox .blk{margin:10px 0 2px}.mathbox .big{font-size:19px}.mathbox .eq{font-size:19px;line-height:1.5}
+  .mathbox i,.mathbox sup,.mathbox sub{font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+  .mathbox i{font-style:italic}
+  .mathbox i{font-style:italic}.arrow{display:inline-block;transform:scaleX(-1);margin:0 .2em}
+
+  .calc{font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;color:#e5e7eb}
+  .calc .sec{border:1px dashed var(--border); border-radius:10px; padding:10px; background:#0c1526; margin-top:10px}
+  .calc .head{font-weight:700; margin-bottom:6px; color:#cbd5e1}
+  .calc .eq{font-size:19px; line-height:1.5}
+  .hl-teal{color:var(--teal); font-weight:700}
+  .hl-magenta{color:var(--magenta); font-weight:700}
+  .hl-green{color:var(--green); font-weight:700}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap title">
+    <h1>המחשה סכמטית: L(u+v) = L(u) + L(v)</h1>
+    <div class="controls">
+      <button id="prevBtn">הקודם</button>
+      <button id="playBtn">הפעל</button>
+      <button id="pauseBtn" style="display:none">עצור</button>
+      <button id="nextBtn">הבא</button>
+      <button id="resetBtn">איפוס</button>
+      <span id="stepText" class="note">שלב 1 מתוך 8</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="grid3">
+    <aside class="card">
+      <h3>הגדרת האופרטור</h3>
+      <div class="mathbox">
+        <div class="eq big blk">[<i>L</i>] : <i>C</i><sup>2</sup>(<i>I</i>) <span class="arrow">➜</span> <i>C</i>(<i>I</i>)</div>
+        <div class="eq blk">( <i>L y</i> )( <i>x</i> ) =</div>
+        <div class="eq"><i>y</i>″(<i>x</i>) + <i>p</i>(<i>x</i>) · <i>y</i>′(<i>x</i>) + <i>q</i>(<i>x</i>) · <i>y</i>(<i>x</i>)</div>
+      </div>
+    </aside>
+
+    <section class="card">
+      <h3>מרחבים מופשטים U ו-W (אנימציה)</h3>
+      <div class="controls" style="justify-content:center;gap:12px;margin:8px 0">
+        <div><label class="note">בחרו u₁:</label>
+          <select id="func1Select">
+            <option value="general">u₁ (כללי)</option><option value="sin">sin(x)</option>
+            <option value="cos">cos(x)</option><option value="exp">e^x</option><option value="poly">x²</option>
+          </select>
+        </div>
+        <div><label class="note">בחרו u₂:</label>
+          <select id="func2Select">
+            <option value="general">u₂ (כללי)</option><option value="exp">e^x</option>
+            <option value="sin">sin(x)</option><option value="cos">cos(x)</option><option value="poly">x²</option>
+          </select>
+        </div>
+        <div><label class="note">מהירות</label>
+          <input id="speed" type="number" step="0.1" min="0.5" max="3" value="1" style="width:70px">
+        </div>
+      </div>
+
+      <div id="err" class="err">יש לבחור שתי אופציות מאותו סוג: שתיהן כלליות או שתיהן ספציפיות</div>
+
+      <div class="stage-wrap">
+        <svg id="svg" class="stage" viewBox="0 0 800 600" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="mTeal" viewBox="0 0 10 10" refX="9.5" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 Q3.5,5 0,0Z" fill="#11a8a0"/></marker>
+            <marker id="mMagenta" viewBox="0 0 10 10" refX="9.5" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 Q3.5,5 0,0Z" fill="#d43d8c"/></marker>
+          </defs>
+          <g id="gSpaces"></g><g id="gArrows"></g><g id="gPoints"></g><g id="gLabels"></g>
+        </svg>
+      </div>
+
+      <div class="wrap" style="padding:0;max-width:none">
+        <input id="slider" type="range" min="1" max="8" value="1" step="1" style="width:min(100%,600px);accent-color:#2563eb">
+      </div>
+    </section>
+
+    <aside class="card">
+      <h3>חישובים — \(L\) על בחירות המשתמש</h3>
+      <div class="calc">
+        <div class="sec"><div class="head">1) אופרטור על כל פונקציה:</div>
+          <div class="eq"><span class="mono">L[y] = y″ + p(x)·y′ + q(x)·y</span></div></div>
+        <div class="sec" id="calcLeftRight">
+          <div class="head">2) חישוב נפרד</div>
+          <div class="eq" id="eq_u1"></div>
+          <div class="eq" id="eq_u2" style="margin-top:6px"></div>
+        </div>
+        <div class="sec" id="calcSum">
+          <div class="head">3) חישוב על הסכום</div>
+          <div class="eq" id="eq_sum"></div>
+        </div>
+        <div class="sec">
+          <div class="head">4) שוויון לינאריות</div>
+          <div class="eq"><span class="hl-magenta">L(u₁)</span> + <span class="hl-magenta">L(u₂)</span> =
+            <span class="hl-teal">L(u₁ + u₂)</span></div>
+        </div>
+      </div>
+    </aside>
+  </div>
+</main>
+
+<script>
+/* ========= בסיס ========= */
+const F = {sin:'sin(x)', cos:'cos(x)', exp:'e^x', poly:'x²'};
+function pt(id,x,y,label){ return {type:'pt',id,x,y,label}; }
+function arr(id,kind,x1,y1,x2,y2){ return {type:'arr',id,kind,x1,y1,x2,y2}; }
+const steps = {
+  1:{spaces:true},
+  2:{spaces:true, els:[pt('u1',200,420,'u₁')]},
+  3:{spaces:true, els:[pt('u1',200,420,'u₁'), pt('u2',260,500,'u₂')]},
+  4:{spaces:true, els:[pt('u1',200,420,'u₁'), pt('u2',260,500,'u₂'), pt('sum',450,460,'u₁ + u₂'),
+                       arr('a12','teal',206,420,444,460), arr('a22','teal',266,500,444,460)]},
+  5:{spaces:true, els:[pt('u1',200,420,'u₁'), pt('u2',260,500,'u₂'), pt('sum',450,460,'u₁ + u₂'),
+                       pt('Lsum',450,150,'L(u₁ + u₂)'),
+                       arr('a12','teal',206,420,444,460), arr('a22','teal',266,500,444,460),
+                       arr('aSum','teal',450,454,450,156)]},
+  6:{spaces:true, els:[pt('u1',200,420,'u₁'), pt('u2',260,500,'u₂'), pt('sum',450,460,'u₁ + u₂'),
+                       pt('Lsum',450,150,'L(u₁ + u₂)'), pt('Lu1',200,100,'L(u₁)'),
+                       arr('a12','teal',206,420,444,460), arr('a22','teal',266,500,444,460),
+                       arr('aSum','teal',450,454,450,156), arr('a1','magenta',200,414,200,106)]},
+  7:{spaces:true, els:[pt('u1',200,420,'u₁'), pt('u2',260,500,'u₂'), pt('sum',450,460,'u₁ + u₂'),
+                       pt('Lsum',450,150,'L(u₁ + u₂)'), pt('Lu1',200,100,'L(u₁)'), pt('Lu2',260,200,'L(u₂)'),
+                       arr('a12','teal',206,420,444,460), arr('a22','teal',266,500,444,460),
+                       arr('aSum','teal',450,454,450,156), arr('a1','magenta',200,414,200,106), arr('a2','magenta',260,494,260,206)]},
+  8:{spaces:true, showEq:true, els:[pt('u1',200,420,'u₁'), pt('u2',260,500,'u₂'), pt('sum',450,460,'u₁ + u₂'),
+                       pt('Lsum',450,150,'L(u₁ + u₂) = L(u₁) + L(u₂)'), pt('Lu1',200,100,'L(u₁)'), pt('Lu2',260,200,'L(u₂)'),
+                       arr('a12','teal',206,420,444,460), arr('a22','teal',266,500,444,460),
+                       arr('aSum','teal',450,454,450,156),
+                       arr('a1','magenta',200,414,200,106), arr('a2','magenta',260,494,260,206),
+                       arr('a1s','magenta',206,100,444,150), arr('a2s','magenta',266,200,444,150)]}
+};
+
+/* שכבות SVG */
+const gSpaces=document.getElementById('gSpaces');
+const gArrows=document.getElementById('gArrows');
+const gPoints=document.getElementById('gPoints');
+const gLabels=document.getElementById('gLabels');
+
+/* מצב ו־UI */
+let current=1, minStep=1, maxStep=8, playing=false, timer=null, lastEls=[];
+const slider=document.getElementById('slider');
+const stepText=document.getElementById('stepText');
+const playBtn=document.getElementById('playBtn');
+const pauseBtn=document.getElementById('pauseBtn');
+const prevBtn=document.getElementById('prevBtn');
+const nextBtn=document.getElementById('nextBtn');
+const resetBtn=document.getElementById('resetBtn');
+const speedInput=document.getElementById('speed');
+const f1Sel=document.getElementById('func1Select');
+const f2Sel=document.getElementById('func2Select');
+const err=document.getElementById('err');
+
+/* גזירות ותצוגת L */
+function d1(name){ switch(name){ case'sin':return'cos(x)'; case'cos':return'−sin(x)'; case'exp':return'e^x'; case'poly':return'2x'; default:return"u′(x)"; } }
+function d2(name){ switch(name){ case'sin':return'−sin(x)'; case'cos':return'−cos(x)'; case'exp':return'e^x'; case'poly':return'2';  default:return"u″(x)"; } }
+function labelOf(name){ return name==='poly'?'x²':(name==='exp'?'e^x':((name==='sin'||name==='cos')?name+'(x)':'u')); }
+
+function computePanel(){
+  const f1=f1Sel.value, f2=f2Sel.value;
+  const y1=(f1==='general')?'u₁(x)':labelOf(f1), y1p=(f1==='general')?'u₁′(x)':d1(f1), y1pp=(f1==='general')?'u₁″(x)':d2(f1);
+  const y2=(f2==='general')?'u₂(x)':labelOf(f2), y2p=(f2==='general')?'u₂′(x)':d1(f2), y2pp=(f2==='general')?'u₂″(x)':d2(f2);
+  const L1=`L(u₁) = ${y1pp} + p(x)·${y1p} + q(x)·${y1}`;
+  const L2=`L(u₂) = ${y2pp} + p(x)·${y2p} + q(x)·${y2}`;
+  const s=`${y1.replace('(x)','')} + ${y2.replace('(x)','')}`,
+        sp=`${y1p} + ${y2p}`, spp=`${y1pp} + ${y2pp}`;
+  const Ls=`L(u₁ + u₂) = ${spp} + p(x)·(${sp}) + q(x)·(${s})`;
+  document.getElementById('eq_u1').innerHTML=`<span class="hl-magenta">${L1}</span>`;
+  document.getElementById('eq_u2').innerHTML=`<span class="hl-magenta">${L2}</span>`;
+  document.getElementById('eq_sum').innerHTML=`<span class="hl-teal">${Ls}</span>`;
+}
+
+/* רנדר + אנימציית חיצים */
+function render(step){
+  const s=steps[step]; if(!s) return;
+  const f1=f1Sel.value, f2=f2Sel.value;
+  const L1=(f1!=='general'), L2=(f2!=='general');
+  const mapLabel=(lab)=>{
+    if(lab==='u₁'&&L1) return labelOf(f1);
+    if(lab==='u₂'&&L2) return labelOf(f2);
+    if(lab==='u₁ + u₂'&&L1&&L2) return `${labelOf(f1)} + ${labelOf(f2)}`;
+    if(lab==='L(u₁)'&&L1) return `L(${labelOf(f1)})`;
+    if(lab==='L(u₂)'&&L2) return `L(${labelOf(f2)})`;
+    if(lab==='L(u₁ + u₂)'&&L1&&L2) return `L(${labelOf(f1)} + ${labelOf(f2)})`;
+    if(lab==='L(u₁ + u₂) = L(u₁) + L(u₂)'&&L1&&L2)
+      return `L(${labelOf(f1)} + ${labelOf(f2)}) = L(${labelOf(f1)}) + L(${labelOf(f2)})`;
+    return lab;
+  };
+
+  gSpaces.innerHTML = s.spaces ? `
+    <ellipse cx="400" cy="150" rx="330" ry="90" class="space-boundary"/>
+    <ellipse cx="400" cy="460" rx="330" ry="90" class="space-boundary"/>
+    <text x="80" y="150" class="math-text">W</text>
+    <text x="80" y="460" class="math-text">U</text>` : '';
+
+  gArrows.innerHTML=''; gPoints.innerHTML=''; gLabels.innerHTML='';
+  (s.els||[]).forEach(el=>{
+    if(el.type==='arr'){
+      const cls=el.kind==='teal'?'teal':'magenta';
+      const marker=el.kind==='teal'?'mTeal':'mMagenta';
+      const line=document.createElementNS('http://www.w3.org/2000/svg','line');
+      line.setAttribute('x1',el.x1); line.setAttribute('y1',el.y1);
+      line.setAttribute('x2',el.x2); line.setAttribute('y2',el.y2);
+      line.setAttribute('class',cls); line.setAttribute('marker-end',`url(#${marker})`);
+      line.dataset.id=el.id; gArrows.appendChild(line);
+    }else{
+      const c=document.createElementNS('http://www.w3.org/2000/svg','circle');
+      c.setAttribute('cx',el.x); c.setAttribute('cy',el.y-4); c.setAttribute('r',5.5); c.setAttribute('class','node');
+      gPoints.appendChild(c);
+      const t=document.createElementNS('http://www.w3.org/2000/svg','text');
+      t.setAttribute('x',el.x); t.setAttribute('y',el.y+18); t.setAttribute('class','math-text label-purple');
+      t.textContent=mapLabel(el.label); gLabels.appendChild(t);
+    }
+  });
+
+  if(s.showEq){
+    const eq=document.createElementNS('http://www.w3.org/2000/svg','text');
+    eq.setAttribute('x',400); eq.setAttribute('y',36); eq.setAttribute('class','math-text eq-green');
+    eq.textContent='L(u₁ + u₂) = L(u₁) + L(u₂)'; gLabels.appendChild(eq);
+  }
+
+  const prevIds=new Set((lastEls||[]).filter(e=>e.type==='arr').map(e=>e.id));
+  const speed=Math.max(0.5,Math.min(3,parseFloat(speedInput.value)||1));
+  const dur=900/speed;
+  Array.from(gArrows.querySelectorAll('line')).forEach(line=>{
+    const justAdded=!prevIds.has(line.dataset.id);
+    if(justAdded){
+      const len=Math.hypot(line.x2.baseVal.value-line.x1.baseVal.value, line.y2.baseVal.value-line.y1.baseVal.value);
+      line.style.strokeDasharray=len; line.style.strokeDashoffset=len;
+      const t0=performance.now();
+      (function anim(ts){ const p=Math.min(1,(ts-t0)/dur);
+        line.style.strokeDashoffset=(1-p)*len;
+        if(p<1) requestAnimationFrame(anim); else line.style.strokeDasharray=''; })(t0);
+    }
+  });
+  lastEls=s.els||[];
+  computePanel();
+}
+
+/* שליטה */
+function setRange(){
+  const mismatch=(f1Sel.value==='general') !== (f2Sel.value==='general');
+  err.style.display=mismatch?'block':'none'; slider.disabled=mismatch;
+  current=1; render(current); updateUI();
+}
+function updateUI(){
+  slider.value=current;
+  stepText.textContent=`שלב ${current-minStep+1} מתוך ${maxStep-minStep+1}`;
+  prevBtn.disabled=current===minStep; nextBtn.disabled=current===maxStep;
+}
+function play(){
+  if(playing) return; playing=true; playBtn.style.display='none'; pauseBtn.style.display='inline-block';
+  const sp=Math.max(0.5,Math.min(3,parseFloat(speedInput.value)||1));
+  timer=setInterval(()=>{ if(current<maxStep){ current++; render(current); updateUI(); } else pause(); },1200/sp);
+}
+function pause(){ playing=false; playBtn.style.display='inline-block'; pauseBtn.style.display='none'; if(timer){clearInterval(timer); timer=null;} }
+
+/* אירועים */
+prevBtn.addEventListener('click',()=>{ pause(); if(current>minStep){ current--; render(current); updateUI(); }});
+nextBtn.addEventListener('click',()=>{ pause(); if(current<maxStep){ current++; render(current); updateUI(); }});
+resetBtn.addEventListener('click',()=>{ pause(); current=minStep; render(current); updateUI(); });
+slider.addEventListener('input',e=>{ pause(); current=parseInt(e.target.value,10)||minStep; render(current); updateUI(); });
+playBtn.addEventListener('click',play); pauseBtn.addEventListener('click',pause);
+[f1Sel,f2Sel].forEach(el=>el.addEventListener('change',()=>{ pause(); setRange(); }));
+
+/* התחלה */
+render(current); updateUI(); computePanel();
+</script>
+</body>
+</html>
