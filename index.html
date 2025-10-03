@@ -116,7 +116,7 @@
         </div>
       </div>
 
-      <div id="err" class="err">יש לבחור שתי אופציות מאותו סוג: שתיהן כלליות או שתיהן ספציפיות</div>
+      <div id="err" class="err">להמחשה ויזואלית ברורה, נא לבחור שתי פונקציות שונות</div>
 
       <div class="stage-wrap">
         <svg id="svg" class="stage" viewBox="0 0 800 600" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
@@ -316,12 +316,18 @@ function render(step){
 /* שליטה */
 const calcCard = document.querySelector('.card:last-child');
 function setRange(){
-  const mismatch=(f1Sel.value==='general') !== (f2Sel.value==='general');
-  err.style.display=mismatch?'block':'none'; slider.disabled=mismatch;
-  current=1; render(current); updateUI();
-  // הבהוב של ריבוע החישובים
-  calcCard.classList.remove('flash');
-  setTimeout(()=>calcCard.classList.add('flash'), 10);
+  const f1=f1Sel.value, f2=f2Sel.value;
+  const sameSpecificFunction = (f1!=='general' && f2!=='general' && f1===f2);
+  
+  err.style.display = sameSpecificFunction ? 'block' : 'none';
+  slider.disabled = sameSpecificFunction;
+  
+  if(!sameSpecificFunction){
+    current=1; render(current); updateUI();
+    // הבהוב של ריבוע החישובים
+    calcCard.classList.remove('flash');
+    setTimeout(()=>calcCard.classList.add('flash'), 10);
+  }
 }
 function updateUI(){
   slider.value=current;
