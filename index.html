@@ -24,6 +24,8 @@
     border-radius:8px;background:#0b1424;color:var(--ink);cursor:pointer;
     box-shadow:0 0 0 1px var(--border-soft) inset}
   .controls button:hover{background:#0e1a2c}
+  .controls button.blink,.controls select.blink{animation:controlBlink 1.5s ease-in-out 4}
+  @keyframes controlBlink{0%,100%{box-shadow:0 0 0 1px var(--border-soft) inset} 50%{box-shadow:0 0 15px var(--purple),0 0 0 2px var(--purple) inset}}
   .note{color:var(--muted); font-size:13px}
   main{padding:14px 0;}
   .grid3{display:grid;grid-template-columns:280px minmax(500px,1fr) 320px; gap:14px;}
@@ -343,6 +345,18 @@ playBtn.addEventListener('click',play); pauseBtn.addEventListener('click',pause)
 
 /* התחלה */
 render(current); updateUI(); computePanel();
+
+// הבהוב ראשוני של כפתורים אינטראקטיביים
+setTimeout(()=>{
+  playBtn.classList.add('blink');
+  f1Sel.classList.add('blink');
+  f2Sel.classList.add('blink');
+  setTimeout(()=>{
+    playBtn.classList.remove('blink');
+    f1Sel.classList.remove('blink');
+    f2Sel.classList.remove('blink');
+  }, 6000);
+}, 500);
 </script>
 </body>
 </html>
