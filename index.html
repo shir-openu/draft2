@@ -39,7 +39,7 @@
   .node{fill:#e2e8f0}
   .math-text{fill:#e2e8f0;font:400 30px/1.2 system-ui,sans-serif;text-anchor:middle;dominant-baseline:central}
   .label-purple{fill:var(--purple);font-weight:400;paint-order:stroke fill;stroke:#0b1220;stroke-width:4px;stroke-linejoin:round}
-  .label-purple.highlight{animation:pulse 2s ease-in-out 8}
+  .label-purple.highlight{animation:pulse 2s ease-in-out 4}
   @keyframes pulse{0%,100%{opacity:1;filter:drop-shadow(0 0 0px var(--purple))} 50%{opacity:0.6;filter:drop-shadow(0 0 12px var(--purple))}}
   .eq-green{fill:var(--green);font-weight:400;animation:blink 3s ease-in-out 3}
   @keyframes blink{0%,100%{opacity:1} 50%{opacity:0.3}}
@@ -57,7 +57,7 @@
   .calc{font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif !important;color:#e5e7eb}
   .calc *{font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif !important}
   .calc .sec{border:1px dashed var(--border); border-radius:10px; padding:10px; background:#0c1526; margin-top:10px}
-  .calc .head{font-weight:700; margin-bottom:6px; color:#cbd5e1}
+  .calc .head{font-weight:400; margin-bottom:6px; color:#cbd5e1}
   .calc .eq{font-size:19px; line-height:1.5}
   .hl-teal{color:var(--teal); font-weight:400; font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif !important}
   .hl-magenta{color:var(--magenta); font-weight:400; font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif !important}
@@ -96,12 +96,12 @@
         <div><label class="note">בחרו u₁:</label>
           <select id="func1Select">
             <option value="general">u₁ (כללי)</option><option value="sin">sin(x)</option>
-            <option value="cos">cos(x)</option><option value="exp">e^x</option><option value="poly">x²</option>
+            <option value="cos">cos(x)</option><option value="exp">eˣ</option><option value="poly">x²</option>
           </select>
         </div>
         <div><label class="note">בחרו u₂:</label>
           <select id="func2Select">
-            <option value="general">u₂ (כללי)</option><option value="exp">e^x</option>
+            <option value="general">u₂ (כללי)</option><option value="exp">eˣ</option>
             <option value="sin">sin(x)</option><option value="cos">cos(x)</option><option value="poly">x²</option>
           </select>
         </div>
@@ -130,7 +130,7 @@
     </section>
 
     <aside class="card">
-      <h3>חישובים — \(L\) על בחירות המשתמש</h3>
+      <h3>חישוב פעולת האופרטור</h3>
       <div class="calc">
         <div class="sec"><div class="head">1) אופרטור על כל פונקציה:</div>
           <div class="eq"><span class="mono">L[y] = y″ + p(x)·y′ + q(x)·y</span></div></div>
@@ -205,9 +205,9 @@ const f2Sel=document.getElementById('func2Select');
 const err=document.getElementById('err');
 
 /* גזירות ותצוגת L */
-function d1(name){ switch(name){ case'sin':return'cos(x)'; case'cos':return'−sin(x)'; case'exp':return'e^x'; case'poly':return'2x'; default:return"u′(x)"; } }
-function d2(name){ switch(name){ case'sin':return'−sin(x)'; case'cos':return'−cos(x)'; case'exp':return'e^x'; case'poly':return'2';  default:return"u″(x)"; } }
-function labelOf(name){ return name==='poly'?'x²':(name==='exp'?'e^x':((name==='sin'||name==='cos')?name+'(x)':'u')); }
+function d1(name){ switch(name){ case'sin':return'cos(x)'; case'cos':return'−sin(x)'; case'exp':return'eˣ'; case'poly':return'2x'; default:return"u′(x)"; } }
+function d2(name){ switch(name){ case'sin':return'−sin(x)'; case'cos':return'−cos(x)'; case'exp':return'eˣ'; case'poly':return'2';  default:return"u″(x)"; } }
+function labelOf(name){ return name==='poly'?'x²':(name==='exp'?'eˣ':((name==='sin'||name==='cos')?name+'(x)':'u')); }
 
 function computePanel(){
   const f1=f1Sel.value, f2=f2Sel.value;
