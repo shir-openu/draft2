@@ -39,7 +39,10 @@
   .node{fill:#e2e8f0}
   .math-text{fill:#e2e8f0;font:400 30px/1.2 system-ui,sans-serif;text-anchor:middle;dominant-baseline:central}
   .label-purple{fill:var(--purple);font-weight:400;paint-order:stroke fill;stroke:#0b1220;stroke-width:4px;stroke-linejoin:round}
-  .eq-green{fill:var(--green);font-weight:400}
+  .label-purple.highlight{animation:pulse 2s ease-in-out 8}
+  @keyframes pulse{0%,100%{opacity:1;filter:drop-shadow(0 0 0px var(--purple))} 50%{opacity:0.6;filter:drop-shadow(0 0 12px var(--purple))}}
+  .eq-green{fill:var(--green);font-weight:400;animation:blink 3s ease-in-out 3}
+  @keyframes blink{0%,100%{opacity:1} 50%{opacity:0.3}}
   .teal{stroke:var(--teal);stroke-width:2.6;fill:none}
   .magenta{stroke:var(--magenta);stroke-width:2.6;fill:none}
   .err{background:#37240a;border:1px solid #f59e0b;color:#fde68a;padding:8px 10px;border-radius:8px;display:none}
@@ -258,7 +261,9 @@ function render(step){
       c.setAttribute('cx',el.x); c.setAttribute('cy',el.y-4); c.setAttribute('r',5.5); c.setAttribute('class','node');
       gPoints.appendChild(c);
       const t=document.createElementNS('http://www.w3.org/2000/svg','text');
-      t.setAttribute('x',el.x); t.setAttribute('y',el.y+18); t.setAttribute('class','math-text label-purple');
+      t.setAttribute('x',el.x); t.setAttribute('y',el.y+18); 
+      const classes = 'math-text label-purple' + (step===8 && el.label.includes('=') ? ' highlight' : '');
+      t.setAttribute('class', classes);
       t.textContent=mapLabel(el.label); gLabels.appendChild(t);
     }
   });
