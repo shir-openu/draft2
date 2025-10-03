@@ -9,7 +9,7 @@
     --bg:#0b1220; --ink:#e5e7eb; --muted:#94a3b8;
     --panel:#0f172a; --panel-2:#111827; --border:#1f2937; --border-soft:#12213a;
     --stage-w: 1200px;
-    --teal:#11a8a0; --magenta:#d43d8c; --purple:#a78bfa; --green:#22c55e;
+    --teal:#11a8a0; --magenta:#f472b6; --purple:#a78bfa; --green:#22c55e;
     --space:#94a3b8;
   }
   html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);
@@ -29,7 +29,7 @@
   .grid3{display:grid;grid-template-columns:280px minmax(500px,1fr) 320px; gap:14px;}
   @media (max-width:1024px){ .grid3{grid-template-columns:1fr} }
   .card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:14px}
-  .card h3{margin:0 0 8px 0;font-size:16px;text-align:center;color:#e2e8f0}
+  .card h3{margin:0 0 8px 0;font-size:16px;text-align:center;color:#e2e8f0;font-weight:400}
 
   .stage-wrap{width:100%;max-width:var(--stage-w);margin:8px auto 0;}
   .stage{width:100%;height:auto;aspect-ratio:4/3;display:block;
@@ -142,7 +142,7 @@
         </div>
         <div class="sec">
           <div class="head">4) שוויון לינאריות</div>
-          <div class="eq"><span class="hl-magenta">L(u₁)</span> + <span class="hl-magenta">L(u₂)</span> =
+          <div class="eq"><span class="hl-magenta">L(u₁)</span> <span style="color:#e5e7eb">+</span> <span class="hl-magenta">L(u₂)</span> <span style="color:#e5e7eb">=</span>
             <span class="hl-teal">L(u₁ + u₂)</span></div>
         </div>
       </div>
